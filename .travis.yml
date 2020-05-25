@@ -15,11 +15,8 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" = "windows" ]; then choco install -y make; fi
   - if [ "$TRAVIS_OS_NAME" = "windows" ]; then powershell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned'; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install make; fi
-before_script:
-  - make configure IN_TRAVIS=1
 scripts:
-  - bash .scripts/pre-commit.sh --all
-  - make build
+  - make test
   - make run
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then make run-binary BUILD_OS=darwin; else make run-binary BUILD_OS=$TRAVIS_OS_NAME; fi
 # after_script:

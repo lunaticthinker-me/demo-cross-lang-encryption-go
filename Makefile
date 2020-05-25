@@ -127,15 +127,6 @@ ifeq ($(IN_TRAVIS),)
 	cd $(shell go env GOPATH)/src/github.com/go-critic/go-critic && make gocritic
 endif
 
-init: init-$(SHELL_IS)
-	go mod init $(PROJECT_PREFIX)/$(PROJECT)
-
-init-bash:
-	rm -rf go.mod
-
-init-powershell:
-	$(POWERSHELL) -File ./.scripts/make.ps1 -Action Init
-
 
 install: build ## Install Application
 	@echo 'Install Instructions'
