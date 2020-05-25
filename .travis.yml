@@ -1,0 +1,38 @@
+language: go
+go_import_path: github.com/templ-project/go
+os:
+  - linux
+  - osx
+  - windows
+go:
+  # - 1.12.x
+  - 1.13.x
+  - 1.14.x
+  # - master
+before_install:
+  # https://docs.travis-ci.com/user/private-dependencies#api-token
+  - echo -e "machine github.com\n  login $CI_USER_TOKEN" > ~/.netrc
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then choco install -y make; fi
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then powershell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned'; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install make; fi
+before_script:
+  - make configure IN_TRAVIS=1
+scripts:
+  - bash .scripts/pre-commit.sh --all
+  - make build
+  - make run
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then make run-binary BUILD_OS=darwin; else make run-binary BUILD_OS=$TRAVIS_OS_NAME; fi
+# after_script:
+#   - test $TRAVIS_NODE_VERSION == '12' && sonar-scanner
+notifications:
+  email:
+    recipients:
+      - dragos.cirjan@gmail.com
+    on_success: never
+    on_failure: always
+# addons:
+#   sonarcloud:
+#     organization: "organisation"
+#     token:
+#       secure: "secure"
+
