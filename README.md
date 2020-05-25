@@ -2,8 +2,9 @@
 
 Encrypt/Decrypt Example for the Article [Cross Programming Language Encryption – CSharp vs Go, Part 2](https://lunaticthinker.me/index.php/cross-programming-language-encryption-–-csharp-vs-go,-part-2).
 
+[![Go Version](https://img.shields.io/github/go-mod/go-version/lunaticthinker-me/demo-cross-lang-encryption-go)](https://img.shields.io/github/go-mod/go-version/lunaticthinker-me/demo-cross-lang-encryption-go)
 [![TravisCI](https://travis-ci.org/lunaticthinker-me/demo-cross-lang-encryption-go.svg?branch=master)](https://travis-ci.org/lunaticthinker-me/demo-cross-lang-encryption-go)
-[![Contributions welcome](https://github.com/templ-project/demo-cross-lang-encryption-go)](https://github.com/lunaticthinker-me/demo-cross-lang-encryption-go/issues)
+[![Contributions welcome](https://img.shields.io/github/contributors/lunaticthinker-me/demo-cross-lang-encryption-go)](https://img.shields.io/github/contributors/lunaticthinker-me/demo-cross-lang-encryption-go)
 
 <!--
 [![Donate to this project using Patreon](https://img.shields.io/badge/patreon-donate-yellow.svg)](https://patreon.com/dragoscirjan)
