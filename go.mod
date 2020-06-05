@@ -1,4 +1,4 @@
-module github.com/templ-project/go
+module github.com/lunaticthinker-me/demo-cross-lang-encryption-go
 
 go 1.14
 

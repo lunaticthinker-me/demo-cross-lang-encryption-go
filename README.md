@@ -44,7 +44,7 @@ Have [openssl]() installed.
 ### Installation
 
 ```bash
-git clone https://github.com/templ-project/demo-cross-lang-encryption-go
+git clone https://github.com/lunaticthinker-me/demo-cross-lang-encryption-go
 ```
 
 ### Development

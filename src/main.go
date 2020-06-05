@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/templ-project/go/src/pkg/democrypt"
+	"github.com/lunaticthinker-me/demo-cross-lang-encryption-go/src/pkg/democrypt"
 )
 
 func doAes(password string) {

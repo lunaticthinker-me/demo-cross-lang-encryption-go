@@ -2,8 +2,8 @@ include Makefile.include
 
 ## Add your make instructions here
 
-PROJECT_PREFIX=github.com/templ-project
-PROJECT=go
+PROJECT_PREFIX=github.com/lunaticthinker-me
+PROJECT=demo-cross-lang-encryption-go
 
 GIT_CERT_IGNORE =
 GIT_CERT_IGNORE_COMMAND =

@@ -1,5 +1,5 @@
 language: go
-go_import_path: github.com/templ-project/go
+go_import_path: github.com/lunaticthinker-me/demo-cross-lang-encryption-go
 os:
   - linux
   - osx
