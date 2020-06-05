@@ -20,7 +20,7 @@ scripts:
   - make run
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then make run-binary BUILD_OS=darwin; else make run-binary BUILD_OS=$TRAVIS_OS_NAME; fi
 after_script:
-  - test $TRAVIS_GO_VERSION =~ ^1\.13 && test $TRAVIS_OS_NAME == 'linux' && sonar-scanner
+  - test $TRAVIS_GO_VERSION == '1.13.x' && test $TRAVIS_OS_NAME == 'linux' && sonar-scanner
 notifications:
   email:
     recipients:
