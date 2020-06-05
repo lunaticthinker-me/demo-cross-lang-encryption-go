@@ -27,9 +27,8 @@ notifications:
       - dragos.cirjan@gmail.com
     on_success: never
     on_failure: always
-# addons:
-#   sonarcloud:
-#     organization: "organisation"
-#     token:
-#       secure: "secure"
-
+addons:
+  sonarcloud:
+    organization: lunaticthinker-me
+    token:
+      secure: Jz/6LNqChH725ITZW8dnwN+8hMAkFe6XPuohQldcZtv8ivlINojcLkTBxNX/a+Xd1cHQ5dTkHaPmOHqNbQ5N71eS/G9ZEI8JzEQN1C5EtYyVYrMHLUjb6T3FTh9axsbpwO2kWYVR7uaQz1m9tsBPDez1r+piMjnWTN7GQ+KcEL9fWw3VPvdBSEVbJomvkdd8haHBC0CiGeJO7IQ7uRmPmVXJoTTTYZXSbmDumNGLd/BRGwO9aotw7DeMSylD4W/P/V5nZtCbCGwFi4VlLvSS5wUIF6YVIvqMqt6ELNzOzjLfvbJ76eEXk6/st0Whlsb7fnrGdT16HQa4M9VIge8Qdbw1eEILoS4wMJ+9wJCrWIOb0BsYsXIWUCyOo2X77mXT3y291e+I2ty1gsWz/T35oocHXzSd9LzRH3LOnc444MzxmMtlDXctFbgy2A7vztU3a3TcF+37AYeBdoVpQOXNvBcwNiczKHUVOoEXgkHkDpp/9DxTZS/8TujPgT8bBEJlhp2Oo0hnaZwxETjdMfZYGFUfuhQiJhCohvb7XpBjwJl5xjpRUOBH4/gKvYI7zaAnU2c0vNCUZhCcbQuwoBHIHvrLNcUM1ndf/L2Jb7koRf8UcF8tGl8MAx776C8NFbeYIKNQk71zQ8LjILED8JbW/02mwjNEQmjeiWvA7P5nZNY=
