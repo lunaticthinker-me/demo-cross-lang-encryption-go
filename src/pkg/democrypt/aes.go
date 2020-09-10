@@ -1,5 +1,8 @@
 package democrypt
 
+// Here is a list of demos with more than CBC and CFB modes...
+// https://golang.org/src/crypto/cipher/example_test.go
+
 import (
 	"crypto/aes"
 	"crypto/cipher"
@@ -9,22 +12,31 @@ import (
 	"io"
 )
 
+const (
+	// AesTypeCfb - use for AES CFB mode
+	AesTypeCfb = iota
+	// AesTypeCbc - use for AES CBC mode
+	AesTypeCbc
+)
+
 // AESCrypt -
 type AESCrypt struct {
-	Key []byte
-	IV  []byte
+	Type int
+	Key  []byte
+	IV   []byte
 }
 
 // NewAESCrypt -
-func NewAESCrypt(Hash string) (*AESCrypt, error) {
+func NewAESCrypt(Hash string, Type int) (*AESCrypt, error) {
 	enc := AESCrypt{}
 
 	if len(Hash) != 16 && len(Hash) != 24 && len(Hash) != 32 {
-		return nil, fmt.Errorf("invalid hash length. must be 16, 24 or 32")
+		return nil, fmt.Errorf("invalid hash length. must be aes.BlockSize, 24 or 32")
 	}
 
+	enc.Type = Type
 	enc.Key = []byte(Hash)
-	enc.IV = make([]byte, 16)
+	enc.IV = make([]byte, aes.BlockSize)
 	if _, err := io.ReadFull(rand.Reader, enc.IV); err != nil {
 		return nil, fmt.Errorf("unable to generate IV: %s", err.Error())
 	}
@@ -33,25 +45,33 @@ func NewAESCrypt(Hash string) (*AESCrypt, error) {
 }
 
 // Encrypt will encrypt a string password using AES algorithm, returning a Base64 for of the encrypt result
-func (enc AESCrypt) Encrypt(password string) (string, error) {
+func (enc AESCrypt) Encrypt(data string) (string, error) {
 	block, err := aes.NewCipher(enc.Key)
 	if err != nil {
 		return "", err
 	}
 
-	stream := cipher.NewCFBEncrypter(block, enc.IV)
+	if enc.Type == AesTypeCbc && len(data)%aes.BlockSize != 0 {
+		panic("plaintext is not a multiple of the block size")
+	}
 
-	encPassword := make([]byte, len([]byte(password)))
+	encdata := make([]byte, len([]byte(data)))
 
-	stream.XORKeyStream(encPassword, []byte(password))
+	if enc.Type == AesTypeCbc {
+		stream := cipher.NewCBCEncrypter(block, enc.IV)
+		stream.CryptBlocks(encdata, []byte(data))
+	} else {
+		stream := cipher.NewCFBEncrypter(block, enc.IV)
+		stream.XORKeyStream(encdata, []byte(data))
+	}
 
-	return base64.StdEncoding.EncodeToString(append(enc.IV, encPassword...)), nil
+	return base64.StdEncoding.EncodeToString(append(enc.IV, encdata...)), nil
 }
 
 // Decrypt will decrypt a string password using AES algorithm, expecting a Base64 form of the encrypted password
-func (enc AESCrypt) Decrypt(password string) (string, error) {
+func (enc AESCrypt) Decrypt(sipher string) (string, error) {
 
-	encPassword, err := base64.StdEncoding.DecodeString(password)
+	encsipher, err := base64.StdEncoding.DecodeString(sipher)
 	if err != nil {
 		return "", err
 	}
@@ -61,15 +81,19 @@ func (enc AESCrypt) Decrypt(password string) (string, error) {
 		return "", err
 	}
 
-	enc.IV = encPassword[0:16]
+	enc.IV = encsipher[0:aes.BlockSize]
 
-	stream := cipher.NewCFBDecrypter(block, enc.IV)
+	encsipher = encsipher[aes.BlockSize:]
 
-	encPassword = encPassword[16:]
+	decsipher := make([]byte, len(encsipher))
 
-	decPassword := make([]byte, len(encPassword))
+	if enc.Type == AesTypeCbc {
+		stream := cipher.NewCBCDecrypter(block, enc.IV)
+		stream.CryptBlocks(decsipher, encsipher)
+	} else {
+		stream := cipher.NewCFBDecrypter(block, enc.IV)
+		stream.XORKeyStream(decsipher, encsipher)
+	}
 
-	stream.XORKeyStream(decPassword, encPassword)
-
-	return string(decPassword), nil
+	return string(decsipher), nil
 }
