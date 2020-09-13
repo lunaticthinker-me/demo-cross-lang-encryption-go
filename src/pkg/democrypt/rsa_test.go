@@ -13,7 +13,7 @@ func TestNewRSACrypt(t *testing.T) {
 
 	cwd, _ := os.Getwd()
 	rsaPath := filepath.Join(cwd, "..", "..", "..", "cert", "rsa")
-	_, err := NewRSACrypt(filepath.Join(rsaPath, "cert.pem"), filepath.Join(rsaPath, "key.pem"))
+	_, err := NewRSACrypt(filepath.Join(rsaPath, "cert.pem"), filepath.Join(rsaPath, "key.pem"), RsaOaep)
 	a.NoError(err)
 }
 
