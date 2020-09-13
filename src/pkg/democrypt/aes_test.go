@@ -1,15 +1,17 @@
 package democrypt
 
 import (
+	"crypto/aes"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-var data = "th1s1smyp@ssw0rd"
-var aes128Hash = "1234567890123456"
-var aes192Hash = "123456789012345612345678"
-var aes256Hash = "12345678901234561234567890123456"
+// aes192Cfb, _ := NewAESCrypt(aes192Hash, AesTypeCfb)
+// aes256Cfb, _ := NewAESCrypt(aes256Hash, AesTypeCfb)
+// aes128Cbc, _ := NewAESCrypt(aes128Hash, AesTypeCbc)
+// aes192Cbc, _ := NewAESCrypt(aes192Hash, AesTypeCbc)
+// aes256Cbc, _ := NewAESCrypt(aes256Hash, AesTypeCbc)
 
 func TestNewAESCrypt(t *testing.T) {
 	a := assert.New(t)
@@ -18,48 +20,60 @@ func TestNewAESCrypt(t *testing.T) {
 	a.NoError(err)
 }
 
+func TestAESCryptPadding(t *testing.T) {
+	a := assert.New(t)
+
+	aes128Cfb, _ := NewAESCrypt(aes128Hash, AesTypeCfb)
+	for _, item := range data {
+		padded := aes128Cfb.pkcs7Padding([]byte(item))
+		a.Equal(len(padded)%aes.BlockSize, 0)
+		trimmed := aes128Cfb.pkcs7Trimming(padded)
+		a.Equal(trimmed, []byte(item))
+	}
+}
+
 // testing CFB
 
 func TestAESEncryptDecrypt_128_Cfb(t *testing.T) {
 	a := assert.New(t)
 
-	aes, err := NewAESCrypt(aes128Hash, AesTypeCfb)
+	aes128Cfb, _ := NewAESCrypt(aes128Hash, AesTypeCfb)
+	for _, item := range data {
+		encrypted, err := aes128Cfb.Encrypt(item)
+		a.NoError(err)
 
-	encrypted, err := aes.Encrypt(data)
-	a.NoError(err)
-
-	decrypted, err := aes.Decrypt(encrypted)
-	a.NoError(err)
-
-	a.Equal(decrypted, data)
+		decrypted, err := aes128Cfb.Decrypt(encrypted)
+		a.NoError(err)
+		a.Equal(decrypted, item)
+	}
 }
 
 func TestAESEncryptDecrypt_192_Cfb(t *testing.T) {
 	a := assert.New(t)
 
-	aes, err := NewAESCrypt(aes192Hash, AesTypeCfb)
+	aes192Cfb, _ := NewAESCrypt(aes192Hash, AesTypeCfb)
+	for _, item := range data {
+		encrypted, err := aes192Cfb.Encrypt(item)
+		a.NoError(err)
 
-	encrypted, err := aes.Encrypt(data)
-	a.NoError(err)
-
-	decrypted, err := aes.Decrypt(encrypted)
-	a.NoError(err)
-
-	a.Equal(decrypted, data)
+		decrypted, err := aes192Cfb.Decrypt(encrypted)
+		a.NoError(err)
+		a.Equal(decrypted, item)
+	}
 }
 
 func TestAESEncryptDecrypt_256_Cfb(t *testing.T) {
 	a := assert.New(t)
 
-	aes, err := NewAESCrypt(aes256Hash, AesTypeCfb)
+	aes256Cfb, _ := NewAESCrypt(aes256Hash, AesTypeCfb)
+	for _, item := range data {
+		encrypted, err := aes256Cfb.Encrypt(item)
+		a.NoError(err)
 
-	encrypted, err := aes.Encrypt(data)
-	a.NoError(err)
-
-	decrypted, err := aes.Decrypt(encrypted)
-	a.NoError(err)
-
-	a.Equal(decrypted, data)
+		decrypted, err := aes256Cfb.Decrypt(encrypted)
+		a.NoError(err)
+		a.Equal(decrypted, item)
+	}
 }
 
 // testing CBC
@@ -67,114 +81,239 @@ func TestAESEncryptDecrypt_256_Cfb(t *testing.T) {
 func TestAESEncryptDecrypt_128_Cbc(t *testing.T) {
 	a := assert.New(t)
 
-	aes, err := NewAESCrypt(aes128Hash, AesTypeCbc)
+	aes128Cbc, _ := NewAESCrypt(aes128Hash, AesTypeCbc)
+	for _, item := range data {
+		encrypted, err := aes128Cbc.Encrypt(item)
+		a.NoError(err)
 
-	encrypted, err := aes.Encrypt(data)
-	a.NoError(err)
-
-	decrypted, err := aes.Decrypt(encrypted)
-	a.NoError(err)
-
-	a.Equal(decrypted, data)
+		decrypted, err := aes128Cbc.Decrypt(encrypted)
+		a.NoError(err)
+		a.Equal(decrypted, item)
+	}
 }
 
 func TestAESEncryptDecrypt_192_Cbc(t *testing.T) {
 	a := assert.New(t)
 
-	aes, err := NewAESCrypt(aes192Hash, AesTypeCbc)
+	aes192Cbc, _ := NewAESCrypt(aes192Hash, AesTypeCbc)
+	for _, item := range data {
+		encrypted, err := aes192Cbc.Encrypt(item)
+		a.NoError(err)
 
-	encrypted, err := aes.Encrypt(data)
-	a.NoError(err)
-
-	decrypted, err := aes.Decrypt(encrypted)
-	a.NoError(err)
-
-	a.Equal(decrypted, data)
+		decrypted, err := aes192Cbc.Decrypt(encrypted)
+		a.NoError(err)
+		a.Equal(decrypted, item)
+	}
 }
 
 func TestAESEncryptDecrypt_256_Cbc(t *testing.T) {
 	a := assert.New(t)
 
-	aes, err := NewAESCrypt(aes256Hash, AesTypeCbc)
+	aes256Cbc, _ := NewAESCrypt(aes256Hash, AesTypeCbc)
+	for _, item := range data {
+		encrypted, err := aes256Cbc.Encrypt(item)
+		a.NoError(err)
 
-	encrypted, err := aes.Encrypt(data)
+		decrypted, err := aes256Cbc.Decrypt(encrypted)
+		a.NoError(err)
+		a.Equal(decrypted, item)
+	}
+}
+
+// testing CS CFB
+
+func TestAESDecrypt_From_CS_128_Cfb(t *testing.T) {
+	t.Skip("golang does not support cfb8")
+	a := assert.New(t)
+
+	aes128Cbf, err := NewAESCrypt(aes128Hash, AesTypeCfb)
+
+	decrypted, err := aes128Cbf.Decrypt(CS_AES_CFB8_128)
 	a.NoError(err)
+	a.Equal(decrypted, data[0])
+}
 
-	decrypted, err := aes.Decrypt(encrypted)
+func TestAESDecrypt_From_CS_192_Cfb(t *testing.T) {
+	t.Skip("golang does not support cfb8")
+	a := assert.New(t)
+
+	aes192Cbf, err := NewAESCrypt(aes192Hash, AesTypeCfb)
+
+	decrypted, err := aes192Cbf.Decrypt(CS_AES_CFB8_192)
 	a.NoError(err)
+	a.Equal(decrypted, data[0])
+}
 
-	a.Equal(decrypted, data)
+func TestAESDecrypt_From_CS_256_Cfb(t *testing.T) {
+	t.Skip("golang does not support cfb8")
+	a := assert.New(t)
+
+	aes256Cbf, err := NewAESCrypt(aes256Hash, AesTypeCfb)
+
+	decrypted, err := aes256Cbf.Decrypt(CS_AES_CFB8_256)
+	a.NoError(err)
+	a.Equal(decrypted, data[0])
+}
+
+// testing CS CFB
+
+func TestAESDecrypt_From_CS_128_Cbc(t *testing.T) {
+	a := assert.New(t)
+
+	aes128Cbf, err := NewAESCrypt(aes128Hash, AesTypeCbc)
+
+	decrypted, err := aes128Cbf.Decrypt(CS_AES_CBC_128)
+	a.NoError(err)
+	a.Equal(decrypted, data[0])
+}
+
+func TestAESDecrypt_From_CS_192_Cbc(t *testing.T) {
+	a := assert.New(t)
+
+	aes192Cbf, err := NewAESCrypt(aes192Hash, AesTypeCbc)
+
+	decrypted, err := aes192Cbf.Decrypt(CS_AES_CBC_192)
+	a.NoError(err)
+	a.Equal(decrypted, data[0])
+}
+
+func TestAESDecrypt_From_CS_256_Cbc(t *testing.T) {
+	a := assert.New(t)
+
+	aes256Cbf, err := NewAESCrypt(aes256Hash, AesTypeCbc)
+
+	decrypted, err := aes256Cbf.Decrypt(CS_AES_CBC_256)
+	a.NoError(err)
+	a.Equal(decrypted, data[0])
 }
 
 // testing JS CFB
 
-func TestAESDecrypt_FromJS_128_Cfb(t *testing.T) {
+func TestAESDecrypt_From_JS_128_Cfb(t *testing.T) {
 	a := assert.New(t)
 
-	aes, err := NewAESCrypt(aes128Hash, AesTypeCfb)
+	aes128Cbf, err := NewAESCrypt(aes128Hash, AesTypeCfb)
 
-	decrypted, err := aes.Decrypt("GigmhLJurG5BhbKZ/4Rbh52d+uv8HoBBFl55d0QzKNQ=")
+	decrypted, err := aes128Cbf.Decrypt(JS_AES_CFB_128)
 	a.NoError(err)
-
-	a.Equal(decrypted, data)
+	a.Equal(decrypted, data[0])
 }
 
-func TestAESDecrypt_FromJS_192_Cfb(t *testing.T) {
+func TestAESDecrypt_From_JS_192_Cfb(t *testing.T) {
 	a := assert.New(t)
 
-	aes, err := NewAESCrypt(aes192Hash, AesTypeCfb)
+	aes192Cbf, err := NewAESCrypt(aes192Hash, AesTypeCfb)
 
-	decrypted, err := aes.Decrypt("wTbvR63MrpuZmfMS0//0nbdQseZnSC2vm61/rUPVbnc=")
+	decrypted, err := aes192Cbf.Decrypt(JS_AES_CFB_192)
 	a.NoError(err)
-
-	a.Equal(decrypted, data)
+	a.Equal(decrypted, data[0])
 }
 
-func TestAESDecrypt_FromJS_256_Cfb(t *testing.T) {
+func TestAESDecrypt_From_JS_256_Cfb(t *testing.T) {
 	a := assert.New(t)
 
-	aes, err := NewAESCrypt(aes256Hash, AesTypeCfb)
+	aes256Cbf, err := NewAESCrypt(aes256Hash, AesTypeCfb)
 
-	decrypted, err := aes.Decrypt("iDXB861O/V3Cfn9Mexrn1a4hOYxmXrsxcWExy+utt+o=")
+	decrypted, err := aes256Cbf.Decrypt(JS_AES_CFB_256)
 	a.NoError(err)
-
-	a.Equal(decrypted, data)
+	a.Equal(decrypted, data[0])
 }
 
-// testing JS CBC
+// testing JS CFB
 
-func TestAESDecrypt_FromJS_128_Cbc(t *testing.T) {
-	t.Skip("algorithm missmatching")
+func TestAESDecrypt_From_JS_128_Cbc(t *testing.T) {
 	a := assert.New(t)
 
-	aes, err := NewAESCrypt(aes128Hash, AesTypeCbc)
+	aes128Cbf, err := NewAESCrypt(aes128Hash, AesTypeCbc)
 
-	decrypted, err := aes.Decrypt("hsub5jmTAFsBBy/1GyNZi/tI35lJX6u4E1BuhoD5t/NH8lvUJarhVE8lCIkiF4g2")
+	decrypted, err := aes128Cbf.Decrypt(JS_AES_CBC_128)
 	a.NoError(err)
-
-	a.Equal(decrypted, data)
+	a.Equal(decrypted, data[0])
 }
 
-func TestAESDecrypt_FromJS_192_Cbc(t *testing.T) {
-	t.Skip("algorithm missmatching")
+func TestAESDecrypt_From_JS_192_Cbc(t *testing.T) {
 	a := assert.New(t)
 
-	aes, err := NewAESCrypt(aes192Hash, AesTypeCbc)
+	aes192Cbf, err := NewAESCrypt(aes192Hash, AesTypeCbc)
 
-	decrypted, err := aes.Decrypt("wLzKcST0ltRik0/lB4+wTz0BOQLamK9ZXtevtP89mO5IIXKg3kxJvPvyroFw4F05")
+	decrypted, err := aes192Cbf.Decrypt(JS_AES_CBC_192)
 	a.NoError(err)
-
-	a.Equal(decrypted, data)
+	a.Equal(decrypted, data[0])
 }
 
-func TestAESDecrypt_FromJS_256_Cbc(t *testing.T) {
-	t.Skip("algorithm missmatching")
+func TestAESDecrypt_From_JS_256_Cbc(t *testing.T) {
 	a := assert.New(t)
 
-	aes, err := NewAESCrypt(aes256Hash, AesTypeCbc)
+	aes256Cbf, err := NewAESCrypt(aes256Hash, AesTypeCbc)
 
-	decrypted, err := aes.Decrypt("KO2RwoX8cd3ydOe5E6/kIAB2o40ILhBLjkToAy8pLRXhNj25cFx0bSO5ThXHkTpN")
+	decrypted, err := aes256Cbf.Decrypt(JS_AES_CBC_256)
 	a.NoError(err)
+	a.Equal(decrypted, data[0])
+}
 
-	a.Equal(decrypted, data)
+// testing PY CFB
+
+func TestAESDecrypt_From_Py_128_Cfb(t *testing.T) {
+	t.Skip("golang does not support cfb8")
+	a := assert.New(t)
+
+	aes128Cbf, err := NewAESCrypt(aes128Hash, AesTypeCfb)
+
+	decrypted, err := aes128Cbf.Decrypt(PY_AES_CFB8_128)
+	a.NoError(err)
+	a.Equal(decrypted, data[0])
+}
+
+func TestAESDecrypt_From_Py_192_Cfb(t *testing.T) {
+	t.Skip("golang does not support cfb8")
+	a := assert.New(t)
+
+	aes192Cbf, err := NewAESCrypt(aes192Hash, AesTypeCfb)
+
+	decrypted, err := aes192Cbf.Decrypt(PY_AES_CFB8_192)
+	a.NoError(err)
+	a.Equal(decrypted, data[0])
+}
+
+func TestAESDecrypt_From_Py_256_Cfb(t *testing.T) {
+	t.Skip("golang does not support cfb8")
+	a := assert.New(t)
+
+	aes256Cbf, err := NewAESCrypt(aes256Hash, AesTypeCfb)
+
+	decrypted, err := aes256Cbf.Decrypt(PY_AES_CFB8_256)
+	a.NoError(err)
+	a.Equal(decrypted, data[0])
+}
+
+// testing PY CFB
+
+func TestAESDecrypt_From_Py_128_Cbc(t *testing.T) {
+	a := assert.New(t)
+
+	aes128Cbf, err := NewAESCrypt(aes128Hash, AesTypeCbc)
+
+	decrypted, err := aes128Cbf.Decrypt(PY_AES_CBC_128)
+	a.NoError(err)
+	a.Equal(decrypted, data[0])
+}
+
+func TestAESDecrypt_From_Py_192_Cbc(t *testing.T) {
+	a := assert.New(t)
+
+	aes192Cbf, err := NewAESCrypt(aes192Hash, AesTypeCbc)
+
+	decrypted, err := aes192Cbf.Decrypt(PY_AES_CBC_192)
+	a.NoError(err)
+	a.Equal(decrypted, data[0])
+}
+
+func TestAESDecrypt_From_Py_256_Cbc(t *testing.T) {
+	a := assert.New(t)
+
+	aes256Cbf, err := NewAESCrypt(aes256Hash, AesTypeCbc)
+
+	decrypted, err := aes256Cbf.Decrypt(PY_AES_CBC_256)
+	a.NoError(err)
+	a.Equal(decrypted, data[0])
 }
