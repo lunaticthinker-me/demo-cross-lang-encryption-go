@@ -11,10 +11,11 @@ Encrypt/Decrypt Example for the Article [Cross Programming Language Encryption �
 [![SonarCloud Bugs](https://sonarcloud.io/api/project_badges/measure?project=lunaticthinker-me_demo-cross-lang-encryption-go&metric=bugs)](https://sonarcloud.io/component_measures/metric/reliability_rating/list?id=lunaticthinker-me_demo-cross-lang-encryption-go)
 [![SonarCloud Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=lunaticthinker-me_demo-cross-lang-encryption-go&metric=vulnerabilities)](https://sonarcloud.io/component_measures/metric/security_rating/list?id=lunaticthinker-me_demo-cross-lang-encryption-go)
 
-<!--
+
 [![Donate to this project using Patreon](https://img.shields.io/badge/patreon-donate-yellow.svg)](https://patreon.com/dragoscirjan)
-[![Donate to this project using Paypal](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=UMMN8JPLVAUR4&source=url)
-[![Donate to this project using Flattr](https://img.shields.io/badge/flattr-donate-yellow.svg)](https://flattr.com/profile/balupton)
+[![Donate to this project using Paypal](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=QBP6DEBJDEMV2&source=url)
+
+<!--[![Donate to this project using Flattr](https://img.shields.io/badge/flattr-donate-yellow.svg)](https://flattr.com/profile/balupton)
 [![Donate to this project using Liberapay](https://img.shields.io/badge/liberapay-donate-yellow.svg)](https://liberapay.com/dragoscirjan)
 [![Donate to this project using Thanks App](https://img.shields.io/badge/thanksapp-donate-yellow.svg)](https://givethanks.app/donate/npm/badges)
 [![Donate to this project using Boost Lab](https://img.shields.io/badge/boostlab-donate-yellow.svg)](https://boost-lab.app/dragoscirjan/badges)
@@ -26,6 +27,7 @@ Encrypt/Decrypt Example for the Article [Cross Programming Language Encryption �
 -->
 
 - [Encrypt/Decrypt Example](#encryptdecrypt-example)
+  - [Compatibility](#compatibility)
   - [Getting Started](#getting-started)
     - [Prereqiusites / Dependencies](#prereqiusites--dependencies)
     - [Installation](#installation)
@@ -39,6 +41,15 @@ Encrypt/Decrypt Example for the Article [Cross Programming Language Encryption �
   - [Issues / Support](#issues--support)
 
 <!-- /TOC -->
+
+## Compatibility
+
+| Algorithm / Language (Go) | C# | Go | Js | Py |
+| AES/CFB | ? | ✓ | ✓ | ✕ |
+| AES/CFB8 | ✕ | ✕ | ✕ | ✕ |
+| AES/CBC | ✓ | ✓ | ✓ | ✓ |
+| RSA/OAEP | ✕ | ✓ | ✕ | ✕ |
+| RSA/PCKS1V15 | ✓ | ✓ | ✓ | ✓ |
 
 ## Getting Started
 
@@ -87,6 +98,24 @@ Run unit tests using `make test`.
 ### Running
 
 Please run `make run`
+
+Demo output:
+
+```
+AES Encrypted Values:
+CFB 128 => 5WPWeBKWEafSfZCAscojoXjpr6AG78cC7Sqx52X9/fo=
+CFB 192 => lkyhuJGvKOwOT5cKYJz9mmO6ND2PGo/XOM5mv5OIvYM=
+CFB 256 => bmcX3+xKhz3Xml4/mQTL9qILe7SEIOfocERs4ZcqD74=
+CBC 128 => 6u9RmbQs5XQQEIug+lP1+zRssBPfkQ5e0Y78TUbCtUE=
+CBC 192 => hCNI0Yb90jKAhds4x9c4G0c5CwtRxMtCfe4As3JIq8A=
+CBC 256 => dXP9pSWf6cgAegouT5UDTfkDE+t7A3j9khe7N/vNB00=
+
+RSA Encrypted Values:
+FxGi+JNXalIIL3Y+poyP4F3j9Mp4yR75Rbe7yx8yI3MNix95OI3LY6jBYpGD5nhXoaYKgX2NrmZcaAeNg7uzIH3m95ULMrboa0Br3IPmEw2aMwW8uxDEL/I4x7Uvlux1QCHnv3rnYNX/Hyipg3DMeKKppmcAYZ1zpfatH6qXMD0vGttpX1KksUe/3TN/oz8swPecAePFg6I/MPcndCxIeVfTXLqUCpQbxvmN7GYQpWbxXGB7S6rQpxNkZLcssH6XHwM/6LRQ3laQ+U+o3kL/bCUUrSB27B6yAB65I0SsLyhFY+bxDjugxOND0MPaVxVpa7MM5lileUL8uqG5U58sBg==
+
+X509 Encrypted Values:
+leFEibNhepKTLi2Er/BtavLejoKJ895LnkNgLEcolG4FOak7n/dKa1cYAZNrHqA/gu/Sd2HBdRirNI2OyJ766Lm5I5iiMQzLGobFI4+jyeLGDCjo2RjySLFBVjPKKbjo3RxcxpS6C/V3qvet3Px2VwdzCEfB3Ffpimsk6RblaZgLPl6YzRQsV1qkYtxxdsk3mdlR3eyXxSjfSUlx1bSZvv/BD2sCJtq+SiHOP9QfvQ8iIG5IbZtNdT95oaQ92bpGxuWA76DYqbP4C0s/Iv4w/GvV0mcgxcK1ePuY3wzCeHy6a80l36OaQGXf6xEJffvQ/QRz7BaEG2V0Fz/Ezx8L9g==
+```
 
 ## Authors
 

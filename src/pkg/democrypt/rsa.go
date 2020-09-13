@@ -4,6 +4,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/pem"
@@ -11,14 +12,22 @@ import (
 	"io/ioutil"
 )
 
+const (
+	// RsaOaep encryption
+	RsaOaep = iota
+	// RsaPkcs1V15 encryption
+	RsaPkcs1V15
+)
+
 // RsaCrypt -
 type RsaCrypt struct {
+	Type    int
 	PubKey  *rsa.PublicKey
 	PrivKey *rsa.PrivateKey
 }
 
 // NewRSACrypt -
-func NewRSACrypt(PubKeyPath string, PrivKeyPath string) (*RsaCrypt, error) {
+func NewRSACrypt(PubKeyPath string, PrivKeyPath string, Type int) (*RsaCrypt, error) {
 	encTool := &RsaCrypt{}
 
 	if err := encTool.ReadPublicKey(PubKeyPath); err != nil {
@@ -27,6 +36,8 @@ func NewRSACrypt(PubKeyPath string, PrivKeyPath string) (*RsaCrypt, error) {
 	if err := encTool.ReadPrivateKey(PrivKeyPath); err != nil {
 		return nil, err
 	}
+
+	encTool.Type = Type
 
 	return encTool, nil
 }
@@ -88,28 +99,60 @@ func (enc *RsaCrypt) ReadPrivateKey(path string) error {
 	return fmt.Errorf("failed to parse private key")
 }
 
-// Encrypt will encrypt a string password using an RSA certificate,
-// returning a Base64 for of the encrypt result
-func (enc *RsaCrypt) Encrypt(password string) (string, error) {
-	ciphertext, err := rsa.EncryptPKCS1v15(rand.Reader, enc.PubKey, []byte(password))
+// Decrypt will decrypt a string, using an RSA certificate,
+// and expecting a Base64 form of the encrypted string
+func (enc *RsaCrypt) Decrypt(ciphertext string) (string, error) {
+	plaintext, err := enc.DecryptBytes([]byte(ciphertext))
 	if err != nil {
 		return "", err
 	}
-	return base64.StdEncoding.EncodeToString(ciphertext), nil
+	return string(plaintext), nil
 }
 
-// Decrypt will decrypt a string password using an RSA certificate,
-// expecting a Base64 form of the encrypted password
-func (enc *RsaCrypt) Decrypt(password string) (string, error) {
-	bytes, err := base64.StdEncoding.DecodeString(password)
+// DecryptBytes will decrypt a set of bytes, using an RSA certificate,
+// and expecting a Base64 form of the encrypted set of bytes
+func (enc *RsaCrypt) DecryptBytes(ciphertext []byte) ([]byte, error) {
+	bytes, err := base64.StdEncoding.DecodeString(string(ciphertext))
+	if err != nil {
+		return nil, err
+	}
+
+	var plaintext []byte
+	if enc.Type == RsaPkcs1V15 {
+		plaintext, err = rsa.DecryptPKCS1v15(rand.Reader, enc.PrivKey, bytes)
+	} else {
+		plaintext, err = rsa.DecryptOAEP(sha256.New(), rand.Reader, enc.PrivKey, bytes, []byte("orders"))
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return plaintext, nil
+}
+
+// Encrypt will encrypt a string using an RSA certificate,
+// returning a Base64 form of the encrypt result
+func (enc *RsaCrypt) Encrypt(plaintext string) (string, error) {
+	ciphertext, err := enc.EncryptBytes([]byte(plaintext))
 	if err != nil {
 		return "", err
 	}
-
-	ciphertext, err := rsa.DecryptPKCS1v15(rand.Reader, enc.PrivKey, bytes)
-	if err != nil {
-		return "", err
-	}
-
 	return string(ciphertext), nil
+}
+
+// EncryptBytes will encrypt a set of bytes using an RSA certificate,
+// returning a Base64 form of the encrypt result
+var ciphertext []byte
+
+func (enc *RsaCrypt) EncryptBytes(plaintext []byte) ([]byte, error) {
+	var err error
+	if enc.Type == RsaPkcs1V15 {
+		ciphertext, err = rsa.EncryptPKCS1v15(rand.Reader, enc.PubKey, plaintext)
+	} else {
+		ciphertext, err = rsa.EncryptOAEP(sha256.New(), rand.Reader, enc.PubKey, plaintext, []byte("orders"))
+	}
+	if err != nil {
+		return nil, err
+	}
+	return []byte(base64.StdEncoding.EncodeToString(ciphertext)), nil
 }

@@ -1,6 +1,10 @@
 package democrypt
 
+// Here is a list of demos with more than CBC and CFB modes...
+// https://golang.org/src/crypto/cipher/example_test.go
+
 import (
+	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
@@ -9,22 +13,31 @@ import (
 	"io"
 )
 
+const (
+	// AesTypeCfb - use for AES CFB mode
+	AesTypeCfb = iota
+	// AesTypeCbc - use for AES CBC mode
+	AesTypeCbc
+)
+
 // AESCrypt -
 type AESCrypt struct {
-	Key []byte
-	IV  []byte
+	Type int
+	Key  []byte
+	IV   []byte
 }
 
 // NewAESCrypt -
-func NewAESCrypt(Hash string) (*AESCrypt, error) {
+func NewAESCrypt(Hash string, Type int) (*AESCrypt, error) {
 	enc := AESCrypt{}
 
 	if len(Hash) != 16 && len(Hash) != 24 && len(Hash) != 32 {
-		return nil, fmt.Errorf("invalid hash length. must be 16, 24 or 32")
+		return nil, fmt.Errorf("invalid hash length. must be aes.BlockSize, 24 or 32")
 	}
 
+	enc.Type = Type
 	enc.Key = []byte(Hash)
-	enc.IV = make([]byte, 16)
+	enc.IV = make([]byte, aes.BlockSize)
 	if _, err := io.ReadFull(rand.Reader, enc.IV); err != nil {
 		return nil, fmt.Errorf("unable to generate IV: %s", err.Error())
 	}
@@ -32,44 +45,87 @@ func NewAESCrypt(Hash string) (*AESCrypt, error) {
 	return &enc, nil
 }
 
-// Encrypt will encrypt a string password using AES algorithm, returning a Base64 for of the encrypt result
-func (enc AESCrypt) Encrypt(password string) (string, error) {
-	block, err := aes.NewCipher(enc.Key)
+// Encrypt will encrypt a string using AES algorithm, returning a Base64 form of the result
+func (enc AESCrypt) Encrypt(plaintext string) (string, error) {
+	cipherbytes, err := enc.EncryptBytes([]byte(plaintext))
 	if err != nil {
 		return "", err
 	}
-
-	stream := cipher.NewCFBEncrypter(block, enc.IV)
-
-	encPassword := make([]byte, len([]byte(password)))
-
-	stream.XORKeyStream(encPassword, []byte(password))
-
-	return base64.StdEncoding.EncodeToString(append(enc.IV, encPassword...)), nil
+	return string(cipherbytes), nil
 }
 
-// Decrypt will decrypt a string password using AES algorithm, expecting a Base64 form of the encrypted password
-func (enc AESCrypt) Decrypt(password string) (string, error) {
-
-	encPassword, err := base64.StdEncoding.DecodeString(password)
-	if err != nil {
-		return "", err
-	}
-
+// EncryptBytes will encrypt a set of bytes using AES algorithm, returning a Base64 form of the result
+func (enc AESCrypt) EncryptBytes(plaintext []byte) ([]byte, error) {
 	block, err := aes.NewCipher(enc.Key)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	enc.IV = encPassword[0:16]
+	var ciphertext []byte
+	if enc.Type == AesTypeCbc {
+		paddedtext := enc.pkcs7Padding(plaintext)
+		ciphertext = make([]byte, len(paddedtext))
 
-	stream := cipher.NewCFBDecrypter(block, enc.IV)
+		aesCbc := cipher.NewCBCEncrypter(block, enc.IV)
+		aesCbc.CryptBlocks(ciphertext, paddedtext)
+	} else {
+		ciphertext = make([]byte, len(plaintext))
 
-	encPassword = encPassword[16:]
+		aesCfb := cipher.NewCFBEncrypter(block, enc.IV)
+		aesCfb.XORKeyStream(ciphertext, plaintext)
+	}
 
-	decPassword := make([]byte, len(encPassword))
+	cipher := base64.StdEncoding.EncodeToString(append(enc.IV, ciphertext...))
+	return []byte(cipher), nil
+}
 
-	stream.XORKeyStream(decPassword, encPassword)
+// Decrypt will decrypt a Base64 encoded string using AES algorithm returning a string
+func (enc AESCrypt) Decrypt(ciphertext string) (string, error) {
+	decrypted, err := enc.DecryptBytes([]byte(ciphertext))
+	return string(decrypted), err
+}
 
-	return string(decPassword), nil
+// DecryptBytes will decrypt a set of Base64 encoded bytes using AES algorithm returning a byte array
+func (enc AESCrypt) DecryptBytes(cipherbytes []byte) ([]byte, error) {
+	block, err := aes.NewCipher(enc.Key)
+	if err != nil {
+		return nil, err
+	}
+
+	decodedStr, err := base64.StdEncoding.DecodeString(string(cipherbytes))
+	if err != nil {
+		return nil, err
+	}
+	decoded := []byte(decodedStr)
+
+	enc.IV = decoded[0:aes.BlockSize]
+	encrypted := decoded[aes.BlockSize:]
+
+	fmt.Printf("\n%v => %d\n", encrypted, len(encrypted))
+	decrypted := make([]byte, len(encrypted))
+
+	if enc.Type == AesTypeCbc {
+		stream := cipher.NewCBCDecrypter(block, enc.IV)
+		stream.CryptBlocks(decrypted, encrypted)
+		decrypted = enc.pkcs7Trimming(decrypted)
+	} else {
+		stream := cipher.NewCFBDecrypter(block, enc.IV)
+		stream.XORKeyStream(decrypted, encrypted)
+	}
+
+	return decrypted, nil
+}
+
+// https://github.com/mervick/aes-everywhere
+func (enc AESCrypt) pkcs7Padding(ciphertext []byte) []byte {
+	bs := aes.BlockSize
+	padding := bs - len(ciphertext)%bs
+	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
+	return append(ciphertext, padtext...)
+}
+
+func (enc AESCrypt) pkcs7Trimming(plaintext []byte) []byte {
+	padding := plaintext[len(plaintext)-1]
+	trimmed := plaintext[:len(plaintext)-int(padding)]
+	return trimmed
 }
