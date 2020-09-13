@@ -2,6 +2,7 @@ package democrypt
 
 import (
 	"math/rand"
+	"testing"
 	"time"
 )
 
@@ -78,3 +79,7 @@ var PY_RSA_OAEP = "jbEtUjq4qFzMb1+1LZRO8AZi6UHqm2YYAQjEzYfM5XAYysSdPaFy9EtPFZmgM
 
 // X509 Encrypted Values:
 var PY_X509 = "vHOnktfekirpxRsXh5ffJjpy9IabBoHqeXcKhcX3saAQPbfbUNUHqSSUhFSDnF1/YKvZCGs9rUFjKyyrEPz4RCFFLB6leNq8y5eERJl6R8i987ZUkMBUmKIMLwMn8oZgEdTIn9VBdFP0/z44UQW5YKCadtQHik2HDVRIxYF4SO+q2sI5HoA/cGi9Jezbz7LkAvAXvom2EBNnYOO/6OCM8RewfR4poMBIlVdleNbxzmHFP4AxWYfgBw6bJLCjlKhP9gwFFObRsywxUHTZ6cxECXHTCMsmT5o+p4f8IAjkOxTkE/7bVdEK51au7W4VlUTRtBEB/T9nxM8cisIyGFGbqw=="
+
+func skipNotCompatible(t *testing.T) {
+	t.Skip("not compatible")
+}

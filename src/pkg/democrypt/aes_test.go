@@ -123,7 +123,7 @@ func TestAESEncryptDecrypt_256_Cbc(t *testing.T) {
 // testing CS CFB
 
 func TestAESDecrypt_From_CS_128_Cfb(t *testing.T) {
-	t.Skip("golang does not support cfb8")
+	skipNotCompatible(t)
 	a := assert.New(t)
 
 	aes128Cbf, err := NewAESCrypt(aes128Hash, AesTypeCfb)
@@ -134,7 +134,7 @@ func TestAESDecrypt_From_CS_128_Cfb(t *testing.T) {
 }
 
 func TestAESDecrypt_From_CS_192_Cfb(t *testing.T) {
-	t.Skip("golang does not support cfb8")
+	skipNotCompatible(t)
 	a := assert.New(t)
 
 	aes192Cbf, err := NewAESCrypt(aes192Hash, AesTypeCfb)
@@ -145,7 +145,7 @@ func TestAESDecrypt_From_CS_192_Cfb(t *testing.T) {
 }
 
 func TestAESDecrypt_From_CS_256_Cfb(t *testing.T) {
-	t.Skip("golang does not support cfb8")
+	skipNotCompatible(t)
 	a := assert.New(t)
 
 	aes256Cbf, err := NewAESCrypt(aes256Hash, AesTypeCfb)
@@ -254,7 +254,7 @@ func TestAESDecrypt_From_JS_256_Cbc(t *testing.T) {
 // testing PY CFB
 
 func TestAESDecrypt_From_Py_128_Cfb(t *testing.T) {
-	t.Skip("golang does not support cfb8")
+	skipNotCompatible(t)
 	a := assert.New(t)
 
 	aes128Cbf, err := NewAESCrypt(aes128Hash, AesTypeCfb)
@@ -265,7 +265,7 @@ func TestAESDecrypt_From_Py_128_Cfb(t *testing.T) {
 }
 
 func TestAESDecrypt_From_Py_192_Cfb(t *testing.T) {
-	t.Skip("golang does not support cfb8")
+	skipNotCompatible(t)
 	a := assert.New(t)
 
 	aes192Cbf, err := NewAESCrypt(aes192Hash, AesTypeCfb)
@@ -276,7 +276,7 @@ func TestAESDecrypt_From_Py_192_Cfb(t *testing.T) {
 }
 
 func TestAESDecrypt_From_Py_256_Cfb(t *testing.T) {
-	t.Skip("golang does not support cfb8")
+	skipNotCompatible(t)
 	a := assert.New(t)
 
 	aes256Cbf, err := NewAESCrypt(aes256Hash, AesTypeCfb)
