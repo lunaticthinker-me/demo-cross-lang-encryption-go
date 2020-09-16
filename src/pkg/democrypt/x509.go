@@ -2,11 +2,8 @@ package democrypt
 
 import (
 	"crypto/ecdsa"
-	"crypto/rand"
 	"crypto/rsa"
-	"crypto/sha512"
 	"crypto/x509"
-	"encoding/base64"
 	"encoding/pem"
 	"fmt"
 	"io/ioutil"
@@ -14,12 +11,11 @@ import (
 
 // X509Crypt -
 type X509Crypt struct {
-	PubKey  *rsa.PublicKey
-	PrivKey *rsa.PrivateKey
+	RsaCrypt
 }
 
 // NewX509Crypt -
-func NewX509Crypt(PubKeyPath string, PrivKeyPath string) (*X509Crypt, error) {
+func NewX509Crypt(PubKeyPath string, PrivKeyPath string, Type int) (*X509Crypt, error) {
 	encTool := &X509Crypt{}
 
 	if err := encTool.ReadPublicKey(PubKeyPath); err != nil {
@@ -28,6 +24,8 @@ func NewX509Crypt(PubKeyPath string, PrivKeyPath string) (*X509Crypt, error) {
 	if err := encTool.ReadPrivateKey(PrivKeyPath); err != nil {
 		return nil, err
 	}
+
+	encTool.Type = Type
 
 	return encTool, nil
 }
@@ -92,33 +90,33 @@ func (enc *X509Crypt) ReadPrivateKey(path string) error {
 	return fmt.Errorf("failed to parse private key")
 }
 
-// Encrypt will encrypt a string password using an SSL certificate,
-// returning a Base64 for of the encrypt result
-func (enc *X509Crypt) Encrypt(password string) (string, error) {
-	hash := sha512.New()
+// // Encrypt will encrypt a string password using an SSL certificate,
+// // returning a Base64 for of the encrypt result
+// func (enc *X509Crypt) Encrypt(password string) (string, error) {
+// 	hash := sha512.New()
 
-	ciphertext, err := rsa.EncryptOAEP(hash, rand.Reader, enc.PubKey, []byte(password), nil)
-	if err != nil {
-		return "", err
-	}
+// 	ciphertext, err := rsa.EncryptOAEP(hash, rand.Reader, enc.PubKey, []byte(password), nil)
+// 	if err != nil {
+// 		return "", err
+// 	}
 
-	return base64.StdEncoding.EncodeToString(ciphertext), nil
-}
+// 	return base64.StdEncoding.EncodeToString(ciphertext), nil
+// }
 
-// Decrypt will decrypt a string password using an SSL certificate,
-// expecting a Base64 form of the encrypted password
-func (enc *X509Crypt) Decrypt(password string) (string, error) {
-	hash := sha512.New()
+// // Decrypt will decrypt a string password using an SSL certificate,
+// // expecting a Base64 form of the encrypted password
+// func (enc *X509Crypt) Decrypt(password string) (string, error) {
+// 	hash := sha512.New()
 
-	bytes, err := base64.StdEncoding.DecodeString(password)
-	if err != nil {
-		return "", err
-	}
+// 	bytes, err := base64.StdEncoding.DecodeString(password)
+// 	if err != nil {
+// 		return "", err
+// 	}
 
-	ciphertext, err := rsa.DecryptOAEP(hash, rand.Reader, enc.PrivKey, bytes, nil)
-	if err != nil {
-		return "", err
-	}
+// 	ciphertext, err := rsa.DecryptOAEP(hash, rand.Reader, enc.PrivKey, bytes, nil)
+// 	if err != nil {
+// 		return "", err
+// 	}
 
-	return string(ciphertext), nil
-}
+// 	return string(ciphertext), nil
+// }

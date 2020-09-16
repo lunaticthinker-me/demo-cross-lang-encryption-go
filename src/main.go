@@ -48,7 +48,10 @@ func main() {
 	fmt.Printf("GO_RSA_PKCS1V1_5 = '%s'\n", encrypted)
 
 	fmt.Println("// X509 Encrypted Values:")
-	x509, _ := democrypt.NewX509Crypt(filepath.Join(x509Path, "cert.pem"), filepath.Join(x509Path, "key.pem"))
+	x509, _ := democrypt.NewX509Crypt(filepath.Join(x509Path, "cert.pem"), filepath.Join(x509Path, "key.pem"), democrypt.RsaOaep)
 	encrypted, _ = x509.Encrypt(data)
-	fmt.Printf("GO_X509 = '%s'\n", encrypted)
+	fmt.Printf("GO_X509_OAEP = '%s'\n", encrypted)
+	x509, _ = democrypt.NewX509Crypt(filepath.Join(x509Path, "cert.pem"), filepath.Join(x509Path, "key.pem"), democrypt.RsaPkcs1V15)
+	encrypted, _ = x509.Encrypt(data)
+	fmt.Printf("GO_X509_PKCS1V1_5 = '%s'\n", encrypted)
 }
