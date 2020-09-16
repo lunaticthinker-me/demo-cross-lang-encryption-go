@@ -49,27 +49,27 @@ func Testx509EncryptDecrypt_Pkcs1v15(t *testing.T) {
 	a.Equal(decrypted, "test")
 }
 
-// func Testx509Decrypt_FromCs_Oaep(t *testing.T) {
-// 	a := assert.New(t)
+func Testx509Decrypt_FromCs_Oaep(t *testing.T) {
+	a := assert.New(t)
 
-// 	x509crypt, err := getRsa(RsaOaep)
-// 	a.NoError(err)
+	x509crypt, err := getRsa(RsaOaep)
+	a.NoError(err)
 
-// 	decrypted, err := x509crypt.Decrypt(CS_X509_OAEP)
-// 	a.NoError(err)
-// 	a.Equal(decrypted, data[0])
-// }
+	decrypted, err := x509crypt.Decrypt(CS_X509_OAEP)
+	a.NoError(err)
+	a.Equal(decrypted, data[0])
+}
 
-// func Testx509Decrypt_FromCs_Pkcs1V15(t *testing.T) {
-// 	a := assert.New(t)
+func Testx509Decrypt_FromCs_Pkcs1V15(t *testing.T) {
+	a := assert.New(t)
 
-// 	x509crypt, err := getRsa(RsaPkcs1V15)
-// 	a.NoError(err)
+	x509crypt, err := getRsa(RsaPkcs1V15)
+	a.NoError(err)
 
-// 	decrypted, err := x509crypt.Decrypt(CS_X509_PKCS1V1_5)
-// 	a.NoError(err)
-// 	a.Equal(decrypted, data[0])
-// }
+	decrypted, err := x509crypt.Decrypt(CS_X509_PKCS1V1_5)
+	a.NoError(err)
+	a.Equal(decrypted, data[0])
+}
 
 func Testx509Decrypt_FromJs_Oaep(t *testing.T) {
 	a := assert.New(t)
