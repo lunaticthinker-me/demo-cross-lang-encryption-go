@@ -60,7 +60,7 @@ func (enc *X509Crypt) ReadPrivateKey(path string) error {
 	}
 
 	block, _ := pem.Decode(data)
-	if block.Type != "PRIVATE KEY" {
+	if block.Type != "PRIVATE KEY" && block.Type != "RSA PRIVATE KEY" {
 		return fmt.Errorf("invalid block type: %s", block.Type)
 	}
 
@@ -89,34 +89,3 @@ func (enc *X509Crypt) ReadPrivateKey(path string) error {
 
 	return fmt.Errorf("failed to parse private key")
 }
-
-// // Encrypt will encrypt a string password using an SSL certificate,
-// // returning a Base64 for of the encrypt result
-// func (enc *X509Crypt) Encrypt(password string) (string, error) {
-// 	hash := sha512.New()
-
-// 	ciphertext, err := rsa.EncryptOAEP(hash, rand.Reader, enc.PubKey, []byte(password), nil)
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	return base64.StdEncoding.EncodeToString(ciphertext), nil
-// }
-
-// // Decrypt will decrypt a string password using an SSL certificate,
-// // expecting a Base64 form of the encrypted password
-// func (enc *X509Crypt) Decrypt(password string) (string, error) {
-// 	hash := sha512.New()
-
-// 	bytes, err := base64.StdEncoding.DecodeString(password)
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	ciphertext, err := rsa.DecryptOAEP(hash, rand.Reader, enc.PrivKey, bytes, nil)
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	return string(ciphertext), nil
-// }

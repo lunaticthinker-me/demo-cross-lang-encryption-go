@@ -53,31 +53,31 @@ func TestRSAEncryptDecrypt_Pkcs1v15(t *testing.T) {
 	}
 }
 
-func TestRSADecrypt_FromCSharp_Oaep(t *testing.T) {
-	skipNotCompatible(t)
-	a := assert.New(t)
+// func TestRSADecrypt_FromCSharp_Oaep(t *testing.T) {
+// 	skipNotCompatible(t)
+// 	a := assert.New(t)
 
-	rsacrypt, err := getRsa(RsaOaep)
-	a.NoError(err)
+// 	rsacrypt, err := getRsa(RsaOaep)
+// 	a.NoError(err)
 
-	decrypted, err := rsacrypt.Decrypt(CS_RSA_OAEP)
-	a.NoError(err)
-	a.Equal(decrypted, data[0])
-}
+// 	decrypted, err := rsacrypt.Decrypt(CS_RSA_OAEP)
+// 	a.NoError(err)
+// 	a.Equal(decrypted, data[0])
+// }
 
-func TestRSADecrypt_FromCSharp_Pkcs1v15(t *testing.T) {
-	a := assert.New(t)
+// func TestRSADecrypt_FromCSharp_Pkcs1v15(t *testing.T) {
+// 	a := assert.New(t)
 
-	rsacrypt, err := getRsa(RsaPkcs1V15)
-	a.NoError(err)
+// 	rsacrypt, err := getRsa(RsaPkcs1V15)
+// 	a.NoError(err)
 
-	decrypted, err := rsacrypt.Decrypt(CS_RSA_PKCS1V1_5)
-	a.NoError(err)
-	a.Equal(decrypted, data[0])
-}
+// 	decrypted, err := rsacrypt.Decrypt(CS_RSA_PKCS1V1_5)
+// 	a.NoError(err)
+// 	a.Equal(decrypted, data[0])
+// }
 
 func TestRSADecrypt_FromJs_Oaep(t *testing.T) {
-	skipNotCompatible(t)
+	skipOaepNotSupported(t)
 	a := assert.New(t)
 
 	rsacrypt, err := getRsa(RsaOaep)
@@ -100,7 +100,7 @@ func TestRSADecrypt_FromJs_Pkcs1v15(t *testing.T) {
 }
 
 func TestRSADecrypt_FromPy_Oaep(t *testing.T) {
-	skipNotCompatible(t)
+	skipOaepNotSupported(t)
 	a := assert.New(t)
 
 	rsacrypt, err := getRsa(RsaOaep)
