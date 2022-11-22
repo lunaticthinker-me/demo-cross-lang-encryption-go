@@ -11,24 +11,44 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
+
+	"github.com/andreburgaud/crypt2go/ecb"
+	"github.com/andreburgaud/crypt2go/padding"
 )
 
-const (
-	// AesTypeCfb - use for AES CFB mode
-	AesTypeCfb = iota
-	// AesTypeCbc - use for AES CBC mode
-	AesTypeCbc
-)
+const AesCbcCrypt = "CBC"
+const AesCcmCrypt = "CCM"
+const AesCfbCrypt = "CFB"
+const AesCfb8Crypt = "CFB8"
+const AesCtrCrypt = "CTR"
+const AesEcbCrypt = "ECB"
+const AesGcmCrypt = "GCM"
+const AesOfbCrypt = "OFB"
+const AesPcbcCrypt = "PCBC"
+
+var AesCryptModes = []string{
+	AesCbcCrypt,
+	AesCcmCrypt, // not implemented https://github.com/pschlump/AesCCM/blob/master/ccm_test.go
+	AesCfbCrypt,
+	AesCfb8Crypt, // unavailable
+	AesCtrCrypt,
+	AesEcbCrypt,
+	AesGcmCrypt, // see AesCcmCrypt
+	AesOfbCrypt,
+	AesPcbcCrypt, // ???
+}
 
 // AESCrypt -
 type AESCrypt struct {
-	Type int
+	Type string
 	Key  []byte
 	IV   []byte
 }
 
+func newDecryptEntity(Type string) {}
+
 // NewAESCrypt -
-func NewAESCrypt(Hash string, Type int) (*AESCrypt, error) {
+func NewAESCrypt(Hash string, Type string) (*AESCrypt, error) {
 	enc := AESCrypt{}
 
 	if len(Hash) != 16 && len(Hash) != 24 && len(Hash) != 32 {
@@ -62,20 +82,40 @@ func (enc AESCrypt) EncryptBytes(plaintext []byte) ([]byte, error) {
 	}
 
 	var ciphertext []byte
-	if enc.Type == AesTypeCbc {
+	switch enc.Type {
+	case AesCbcCrypt:
 		paddedtext := enc.pkcs7Padding(plaintext)
 		ciphertext = make([]byte, len(paddedtext))
 
-		aesCbc := cipher.NewCBCEncrypter(block, enc.IV)
-		aesCbc.CryptBlocks(ciphertext, paddedtext)
-	} else {
+		mode := cipher.NewCBCEncrypter(block, enc.IV)
+		mode.CryptBlocks(ciphertext, paddedtext)
+	case AesCfbCrypt:
 		ciphertext = make([]byte, len(plaintext))
 
-		aesCfb := cipher.NewCFBEncrypter(block, enc.IV)
-		aesCfb.XORKeyStream(ciphertext, plaintext)
+		mode := cipher.NewCFBEncrypter(block, enc.IV)
+		mode.XORKeyStream(ciphertext, plaintext)
+	// case AesCfb8Crypt:
+	case AesCtrCrypt:
+		ciphertext = make([]byte, len(plaintext))
+
+		mode := cipher.NewCTR(block, enc.IV)
+		mode.XORKeyStream(ciphertext, plaintext)
+	case AesEcbCrypt:
+		mode := ecb.NewECBEncrypter(block)
+		plaintext, err = padding.NewPkcs7Padding(mode.BlockSize()).Pad(plaintext)
+		if err != nil {
+			return nil, err
+		}
+
+		ciphertext = make([]byte, len(plaintext))
+		mode.CryptBlocks(ciphertext, plaintext)
+	case AesGcmCrypt:
+	default:
+		return nil, fmt.Errorf("invalid cipher type: %s", enc.Type)
 	}
 
 	cipher := base64.StdEncoding.EncodeToString(append(enc.IV, ciphertext...))
+	// fmt.Printf("\n%v => IV:%d CIPHER:%d\n", cipher, len(enc.IV), len(ciphertext))
 	return []byte(cipher), nil
 }
 
@@ -101,16 +141,35 @@ func (enc AESCrypt) DecryptBytes(cipherbytes []byte) ([]byte, error) {
 	enc.IV = decoded[0:aes.BlockSize]
 	encrypted := decoded[aes.BlockSize:]
 
-	fmt.Printf("\n%v => %d\n", encrypted, len(encrypted))
+	// fmt.Printf("\n%v => %d (%d)\n", encrypted, len(encrypted), len(decoded))
 	decrypted := make([]byte, len(encrypted))
 
-	if enc.Type == AesTypeCbc {
+	switch enc.Type {
+	case AesCbcCrypt:
 		stream := cipher.NewCBCDecrypter(block, enc.IV)
 		stream.CryptBlocks(decrypted, encrypted)
 		decrypted = enc.pkcs7Trimming(decrypted)
-	} else {
+	case AesCcmCrypt:
+	case AesCfbCrypt:
 		stream := cipher.NewCFBDecrypter(block, enc.IV)
 		stream.XORKeyStream(decrypted, encrypted)
+	// case AesCfb8Crypt:
+	case AesCtrCrypt:
+		stream := cipher.NewCTR(block, enc.IV)
+		stream.XORKeyStream(decrypted, encrypted)
+	case AesEcbCrypt:
+		mode := ecb.NewECBDecrypter(block)
+		mode.CryptBlocks(decrypted, encrypted)
+
+		decrypted, err = padding.NewPkcs7Padding(mode.BlockSize()).Unpad(decrypted)
+		if err != nil {
+			return nil, err
+		}
+	case AesGcmCrypt:
+	case AesOfbCrypt:
+	case AesPcbcCrypt:
+	default:
+		return nil, fmt.Errorf("invalid cipher type: %s", enc.Type)
 	}
 
 	return decrypted, nil
