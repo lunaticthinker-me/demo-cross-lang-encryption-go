@@ -10,7 +10,7 @@ import (
 
 func getRsa(Type int) (*RsaCrypt, error) {
 	cwd, _ := os.Getwd()
-	rsaPath := filepath.Join(cwd, "..", "..", "..", "cert", "rsa")
+	rsaPath := filepath.Join(cwd, "..", "..", "cert", "rsa")
 	return NewRSACrypt(filepath.Join(rsaPath, "cert.pem"), filepath.Join(rsaPath, "key.pem"), Type)
 }
 

@@ -89,7 +89,7 @@ endif
 configure: ## Configure and Init the code dependencies
 	go get -t -v ./...
 
-	pip3 install pre-commit
+	python3 -m pip install pre-commit
 	python3 -m pre_commit
 	python3 -m pre_commit run --all-files
 

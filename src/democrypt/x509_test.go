@@ -12,7 +12,7 @@ func TestNewX509Crypt(t *testing.T) {
 	a := assert.New(t)
 
 	cwd, _ := os.Getwd()
-	x509Path := filepath.Join(cwd, "..", "..", "..", "cert", "x509")
+	x509Path := filepath.Join(cwd, "..", "..", "cert", "x509")
 	_, err := NewX509Crypt(filepath.Join(x509Path, "cert.pem"), filepath.Join(x509Path, "key.pem"))
 	a.NoError(err)
 }
