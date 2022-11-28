@@ -31,8 +31,7 @@ func TestAESEncryptDecrypt(t *testing.T) {
 
 	for _, Type := range AesCryptModes {
 		for _, Hash := range []string{aes128Hash, aes192Hash, aes256Hash} {
-			if Type == AesCcmCrypt || Type == AesCfb8Crypt || Type == AesGcmCrypt
-        || Type == AesOfbCrypt || Type == AesPcbcCrypt {
+			if Type == AesCcmCrypt || Type == AesCfb8Crypt || Type == AesGcmCrypt || Type == AesOfbCrypt || Type == AesPcbcCrypt {
 				continue
 			}
 			aesCrypto, _ := NewAESCrypt(Hash, Type)

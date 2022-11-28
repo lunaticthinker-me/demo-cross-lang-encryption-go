@@ -86,46 +86,12 @@ else
 	$(POWERSHELL) -File ./.scripts/make.ps1 -Action RmDir -Path $(BUILD_PATH)
 endif
 
-
-configure: configure-$(SHELL_IS) ## Configure and Init the code dependencies
-	$(GIT_CERT_IGNORE_COMMAND)
-	go get -u golang.org/x/lint/golint
-
-	go get golang.org/x/tools/cmd/goimports
-
-	go get github.com/fzipp/gocyclo
-
+configure: ## Configure and Init the code dependencies
 	go get -t -v ./...
 
-configure-bash:
-	chmod 755 .scripts/pre-commit.sh
-	[ -f .git/hooks/pre-commit ] || ln -s .scripts/pre-commit.sh .git/hooks/pre-commit
-
-	go get -v -u github.com/go-lintpack/lintpack/...
-	lintpack build -o gocritic github.com/go-critic/go-critic/checkers
-
-	go get -v github.com/go-critic/go-critic/...
-ifeq ($(IN_TRAVIS),)
-ifeq ($(OSFLAG),WIN32)
-	cd $$GOPATH/src/github.com/go-critic/go-critic; make gocritic
-else
-	cd $(shell go env GOPATH)/src/github.com/go-critic/go-critic && make gocritic
-endif
-endif
-
-	curl --insecure -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $$(go env GOPATH)/bin $$(curl -sSL https://github.com/golangci/golangci-lint/releases | grep "releases/tag" | head -n 1 | awk -F '>' '{print $$2}' | awk -F '<' '{print $$1}')
-
-# https://winaero.com/blog/create-symbolic-link-windows-10-powershell/
-configure-powershell:
-	$(POWERSHELL) -File ./.scripts/make.ps1 -Action Configure
-
-	go get -v -u github.com/go-lintpack/lintpack/...
-	lintpack build -o gocritic github.com/go-critic/go-critic/checkers
-
-	go get -v github.com/go-critic/go-critic/...
-ifeq ($(IN_TRAVIS),)
-	cd $(shell go env GOPATH)/src/github.com/go-critic/go-critic && make gocritic
-endif
+	pip3 install pre-commit
+	python3 -m pre_commit
+	python3 -m pre_commit run --all-files
 
 
 install: build ## Install Application
