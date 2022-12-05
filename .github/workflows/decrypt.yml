@@ -18,9 +18,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+
+    - name: Use Go 1.18
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.18
+
     - name: Decrypt values from ${{ inputs.lang }} encryption
       run: |
-        echo "test"
-        # npm i \
-        # && npm run build \
-        # && echo "${{ inputs.data_csv }}" | node bin/decrypt.js
+        echo "${{ inputs.data_csv }}" | go run main.go decrypt
