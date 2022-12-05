@@ -13,11 +13,15 @@ import (
 )
 
 const (
-	// RsaOaep encryption
-	RsaOaep = iota
-	// RsaPkcs1V15 encryption
-	RsaPkcs1V15
+	// PaddingOaep encryption
+	PaddingOaep = iota
+	// PaddingPkcs1V15 encryption
+	PaddingPkcs1V15
 )
+
+var RsaPaddingList = []int{PaddingOaep, PaddingPkcs1V15}
+
+var RsaPaddingLabels = []string{"OAEP", "Pkcs1V15"}
 
 // RsaCrypt -
 type RsaCrypt struct {
@@ -27,23 +31,24 @@ type RsaCrypt struct {
 }
 
 // NewRSACrypt -
-func NewRSACrypt(PubKeyPath string, PrivKeyPath string, Type int) (*RsaCrypt, error) {
+func NewRSACrypt(pubKeyPath string, privKeyPath string, _type int) (*RsaCrypt, error) {
 	encTool := &RsaCrypt{}
 
-	if err := encTool.ReadPublicKey(PubKeyPath); err != nil {
+	if err := encTool.ReadPublicKey(pubKeyPath); err != nil {
 		return nil, err
 	}
-	if err := encTool.ReadPrivateKey(PrivKeyPath); err != nil {
+	if err := encTool.ReadPrivateKey(privKeyPath); err != nil {
 		return nil, err
 	}
 
-	encTool.Type = Type
+	encTool.Type = _type
 
 	return encTool, nil
 }
 
 // ReadPublicKey -
 func (enc *RsaCrypt) ReadPublicKey(path string) error {
+	// fmt.Println("rsa pub key")
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		return fmt.Errorf("could not read public key file: %s", err.Error())
@@ -68,6 +73,7 @@ func (enc *RsaCrypt) ReadPublicKey(path string) error {
 
 // ReadPrivateKey -
 func (enc *RsaCrypt) ReadPrivateKey(path string) error {
+	// fmt.Println("rsa priv key")
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		return fmt.Errorf("could not read private key file: %s", err.Error())
@@ -118,7 +124,7 @@ func (enc *RsaCrypt) DecryptBytes(ciphertext []byte) ([]byte, error) {
 	}
 
 	var plaintext []byte
-	if enc.Type == RsaPkcs1V15 {
+	if enc.Type == PaddingPkcs1V15 {
 		plaintext, err = rsa.DecryptPKCS1v15(rand.Reader, enc.PrivKey, bytes)
 	} else {
 		plaintext, err = rsa.DecryptOAEP(sha256.New(), rand.Reader, enc.PrivKey, bytes, []byte("orders"))
@@ -146,7 +152,7 @@ var ciphertext []byte
 
 func (enc *RsaCrypt) EncryptBytes(plaintext []byte) ([]byte, error) {
 	var err error
-	if enc.Type == RsaPkcs1V15 {
+	if enc.Type == PaddingPkcs1V15 {
 		ciphertext, err = rsa.EncryptPKCS1v15(rand.Reader, enc.PubKey, plaintext)
 	} else {
 		ciphertext, err = rsa.EncryptOAEP(sha256.New(), rand.Reader, enc.PubKey, plaintext, []byte("orders"))

@@ -16,39 +16,53 @@ import (
 	"github.com/andreburgaud/crypt2go/padding"
 )
 
-const AesCbcCrypt = "CBC"
-const AesCcmCrypt = "CCM"
-const AesCfbCrypt = "CFB"
-const AesCfb8Crypt = "CFB8"
-const AesCtrCrypt = "CTR"
-const AesEcbCrypt = "ECB"
-const AesGcmCrypt = "GCM"
-const AesOfbCrypt = "OFB"
-const AesPcbcCrypt = "PCBC"
+const (
+	AesCbcCypher = iota
+	AesCcmCypher
+	AesCfb8Cypher
+	AesCfbCypher
+	AesCtrCypher
+	AesEcbCypher
+	AesGcmCypher
+	AesOfbCypher
+	AesPcbcCypher
+)
 
-var AesCryptModes = []string{
-	AesCbcCrypt,
-	AesCcmCrypt, // not implemented https://github.com/pschlump/AesCCM/blob/master/ccm_test.go
-	AesCfbCrypt,
-	AesCfb8Crypt, // unavailable
-	AesCtrCrypt,
-	AesEcbCrypt,
-	AesGcmCrypt, // see AesCcmCrypt
-	AesOfbCrypt,
-	AesPcbcCrypt, // ???
+var AesCypherLabels = []string{
+	"CBC",
+	"CCM",
+	"CFB",
+	"CFB8",
+	"CTR",
+	"ECB",
+	"GCM",
+	"OFB",
+	"PCBC",
+}
+
+var AesChyperList = []int{
+	AesCbcCypher,
+	AesCcmCypher,  // not implemented https://github.com/pschlump/AesCCM/blob/master/ccm_test.go
+	AesCfb8Cypher, // unavailable
+	AesCfbCypher,
+	AesCtrCypher,
+	AesEcbCypher,
+	AesGcmCypher, // see AesCcmCypher
+	AesOfbCypher,
+	AesPcbcCypher, // unavailable
 }
 
 // AESCrypt -
 type AESCrypt struct {
-	Type string
+	Type int
 	Key  []byte
 	IV   []byte
 }
 
-func newDecryptEntity(Type string) {}
+func newDecryptEntity(Type int) {}
 
 // NewAESCrypt -
-func NewAESCrypt(Hash string, Type string) (*AESCrypt, error) {
+func NewAESCrypt(Hash string, Type int) (*AESCrypt, error) {
 	enc := AESCrypt{}
 
 	if len(Hash) != 16 && len(Hash) != 24 && len(Hash) != 32 {
@@ -83,24 +97,24 @@ func (enc AESCrypt) EncryptBytes(plaintext []byte) ([]byte, error) {
 
 	var ciphertext []byte
 	switch enc.Type {
-	case AesCbcCrypt:
+	case AesCbcCypher:
 		paddedtext := enc.pkcs7Padding(plaintext)
 		ciphertext = make([]byte, len(paddedtext))
 
 		mode := cipher.NewCBCEncrypter(block, enc.IV)
 		mode.CryptBlocks(ciphertext, paddedtext)
-	case AesCfbCrypt:
+	case AesCfbCypher:
 		ciphertext = make([]byte, len(plaintext))
 
 		mode := cipher.NewCFBEncrypter(block, enc.IV)
 		mode.XORKeyStream(ciphertext, plaintext)
-	// case AesCfb8Crypt:
-	case AesCtrCrypt:
+	// case AesCfb8Cypher:
+	case AesCtrCypher:
 		ciphertext = make([]byte, len(plaintext))
 
 		mode := cipher.NewCTR(block, enc.IV)
 		mode.XORKeyStream(ciphertext, plaintext)
-	case AesEcbCrypt:
+	case AesEcbCypher:
 		mode := ecb.NewECBEncrypter(block)
 		plaintext, err = padding.NewPkcs7Padding(mode.BlockSize()).Pad(plaintext)
 		if err != nil {
@@ -109,9 +123,9 @@ func (enc AESCrypt) EncryptBytes(plaintext []byte) ([]byte, error) {
 
 		ciphertext = make([]byte, len(plaintext))
 		mode.CryptBlocks(ciphertext, plaintext)
-	case AesGcmCrypt:
+	case AesGcmCypher:
 	default:
-		return nil, fmt.Errorf("invalid cipher type: %s", enc.Type)
+		return nil, fmt.Errorf("invalid cipher type: %s", AesCypherLabels[enc.Type])
 	}
 
 	cipher := base64.StdEncoding.EncodeToString(append(enc.IV, ciphertext...))
@@ -145,19 +159,19 @@ func (enc AESCrypt) DecryptBytes(cipherbytes []byte) ([]byte, error) {
 	decrypted := make([]byte, len(encrypted))
 
 	switch enc.Type {
-	case AesCbcCrypt:
+	case AesCbcCypher:
 		stream := cipher.NewCBCDecrypter(block, enc.IV)
 		stream.CryptBlocks(decrypted, encrypted)
 		decrypted = enc.pkcs7Trimming(decrypted)
-	case AesCcmCrypt:
-	case AesCfbCrypt:
+	case AesCcmCypher:
+	case AesCfbCypher:
 		stream := cipher.NewCFBDecrypter(block, enc.IV)
 		stream.XORKeyStream(decrypted, encrypted)
-	// case AesCfb8Crypt:
-	case AesCtrCrypt:
+	// case AesCfb8Cypher:
+	case AesCtrCypher:
 		stream := cipher.NewCTR(block, enc.IV)
 		stream.XORKeyStream(decrypted, encrypted)
-	case AesEcbCrypt:
+	case AesEcbCypher:
 		mode := ecb.NewECBDecrypter(block)
 		mode.CryptBlocks(decrypted, encrypted)
 
@@ -165,11 +179,11 @@ func (enc AESCrypt) DecryptBytes(cipherbytes []byte) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-	case AesGcmCrypt:
-	case AesOfbCrypt:
-	case AesPcbcCrypt:
+	case AesGcmCypher:
+	case AesOfbCypher:
+	case AesPcbcCypher:
 	default:
-		return nil, fmt.Errorf("invalid cipher type: %s", enc.Type)
+		return nil, fmt.Errorf("invalid cipher type: %s", AesCypherLabels[enc.Type])
 	}
 
 	return decrypted, nil
