@@ -12,6 +12,13 @@ import (
 	"go.step.sm/crypto/randutil"
 )
 
+func formatError(err error) string {
+	if err == nil {
+		return ""
+	}
+	return fmt.Sprintf("%v", err)
+}
+
 func getRsa(Type int) (*democrypt.RsaCrypt, error) {
 	cwd, _ := os.Getwd()
 	rsaPath := filepath.Join(cwd, "cert", "rsa")
@@ -80,13 +87,13 @@ func Encrypt() {
 						key,
 						decrypted,
 						encrypted,
-						fmt.Sprintf("%v", err),
+						fmt.Sprintf("%v", formatError(err)),
 					}
 				} else {
-					row = []string{algo, key, decrypted, "", fmt.Sprintf("%v", err)}
+					row = []string{algo, key, decrypted, "", fmt.Sprintf("%v", formatError(err))}
 				}
 			} else {
-				row = []string{algo, key, "", "", fmt.Sprintf("%v", err)}
+				row = []string{algo, key, "", "", fmt.Sprintf("%v", formatError(err))}
 			}
 
 			tbl.AddRow(row[0], row[1], row[2], row[3], row[4])
@@ -110,13 +117,13 @@ func Encrypt() {
 					"",
 					decrypted,
 					encrypted,
-					fmt.Sprintf("%v", err),
+					fmt.Sprintf("%v", formatError(err)),
 				}
 			} else {
-				row = []string{algo, "", decrypted, "", fmt.Sprintf("%v", err)}
+				row = []string{algo, "", decrypted, "", fmt.Sprintf("%v", formatError(err))}
 			}
 		} else {
-			row = []string{algo, "", "", "", fmt.Sprintf("%v", err)}
+			row = []string{algo, "", "", "", fmt.Sprintf("%v", formatError(err))}
 		}
 
 		tbl.AddRow(row[0], row[1], row[2], row[3], row[4])
@@ -139,13 +146,13 @@ func Encrypt() {
 					"",
 					decrypted,
 					encrypted,
-					fmt.Sprintf("%v", err),
+					fmt.Sprintf("%v", formatError(err)),
 				}
 			} else {
-				row = []string{algo, "", decrypted, "", fmt.Sprintf("%v", err)}
+				row = []string{algo, "", decrypted, "", fmt.Sprintf("%v", formatError(err))}
 			}
 		} else {
-			row = []string{algo, "", "", "", fmt.Sprintf("%v", err)}
+			row = []string{algo, "", "", "", fmt.Sprintf("%v", formatError(err))}
 		}
 
 		tbl.AddRow(row[0], row[1], row[2], row[3], row[4])
@@ -184,7 +191,7 @@ func Decrypt() {
 			crypto, err = getX509(indexOf(algo[1], democrypt.RsaPaddingLabels))
 		}
 
-		if test[4] == "<nil>" {
+		if test[4] == "" {
 			if err == nil {
 				decrypted, err := crypto.Decrypt(test[3])
 				if err == nil {
@@ -194,13 +201,13 @@ func Decrypt() {
 						tbl.AddRow(test[0], "no", "decrypt failed")
 					}
 				} else {
-					tbl.AddRow(test[0], "", fmt.Sprintf("%v", err))
+					tbl.AddRow(test[0], "no", fmt.Sprintf("%v", formatError(err)))
 				}
 			} else {
-				tbl.AddRow(test[0], "", fmt.Sprintf("%v", err))
+				tbl.AddRow(test[0], "no", fmt.Sprintf("%v", formatError(err)))
 			}
 		} else {
-			tbl.AddRow(test[0], "", fmt.Sprintf("source could not encrypt: %s", test[4]))
+			tbl.AddRow(test[0], "no", fmt.Sprintf("source could not encrypt: %s", test[4]))
 		}
 	}
 
