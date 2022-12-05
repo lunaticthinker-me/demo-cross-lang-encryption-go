@@ -170,7 +170,9 @@ func Decrypt() {
 	csvString := string(csvBytes)
 
 	for _, line := range strings.Split(csvString, "\n") {
+		fmt.Println(line)
 		test := strings.Split(line, ",")
+		fmt.Println(test)
 		algo := strings.Split(test[0], ":")
 		var crypto democrypt.Crypt
 		var err error
