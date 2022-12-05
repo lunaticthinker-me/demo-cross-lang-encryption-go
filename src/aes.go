@@ -19,8 +19,8 @@ import (
 const (
 	AesCbcCypher = iota
 	AesCcmCypher
-	AesCfb8Cypher
 	AesCfbCypher
+	AesCfb8Cypher
 	AesCtrCypher
 	AesEcbCypher
 	AesGcmCypher
@@ -28,29 +28,16 @@ const (
 	AesPcbcCypher
 )
 
-var AesCypherLabels = []string{
-	"CBC",
-	"CCM",
-	"CFB",
-	"CFB8",
-	"CTR",
-	"ECB",
-	"GCM",
-	"OFB",
-	"PCBC",
-}
-
-// TODO: convert to map
-var AesChyperList = []int{
-	AesCbcCypher,  // ✓
-	AesCcmCypher,  // not implemented https://github.com/pschlump/AesCCM/blob/master/ccm_test.go
-	AesCfbCypher,  // ✓
-	AesCfb8Cypher, // unavailable
-	AesCtrCypher,  // ✓
-	AesEcbCypher,  // ✓
-	AesGcmCypher,  // see AesCcmCypher
-	AesOfbCypher,  // unavailable
-	AesPcbcCypher, // unavailable
+var AesChyperModes = map[string]int{
+	"CBC":  AesCbcCypher,  // ✓
+	"CCM":  AesCcmCypher,  // not implemented https://github.com/pschlump/AesCCM/blob/master/ccm_test.go
+	"CFB":  AesCfbCypher,  // ✓
+	"CFB8": AesCfb8Cypher, // unavailable
+	"CTR":  AesCtrCypher,  // ✓
+	"ECB":  AesEcbCypher,  // ✓
+	"GCM":  AesGcmCypher,  // see AesCcmCypher
+	"OFB":  AesOfbCypher,  // unavailable
+	"PCBC": AesPcbcCypher, // unavailable
 }
 
 // AESCrypt -
@@ -124,7 +111,12 @@ func (enc AESCrypt) EncryptBytes(plaintext []byte) ([]byte, error) {
 		ciphertext = make([]byte, len(plaintext))
 		mode.CryptBlocks(ciphertext, plaintext)
 	default:
-		return nil, fmt.Errorf("invalid cipher type: %s", AesCypherLabels[enc.Type])
+		for cypherLabel, cypherType := range AesChyperModes {
+			if cypherType == enc.Type {
+				return nil, fmt.Errorf("invalid cipher type: %s", cypherLabel)
+			}
+		}
+		return nil, fmt.Errorf("invalid cipher type int value")
 	}
 
 	cipher := base64.StdEncoding.EncodeToString(append(enc.IV, ciphertext...))
@@ -177,7 +169,12 @@ func (enc AESCrypt) DecryptBytes(cipherbytes []byte) ([]byte, error) {
 			return nil, err
 		}
 	default:
-		return nil, fmt.Errorf("invalid cipher type: %s", AesCypherLabels[enc.Type])
+		for cypherLabel, cypherType := range AesChyperModes {
+			if cypherType == enc.Type {
+				return nil, fmt.Errorf("invalid cipher type: %s", cypherLabel)
+			}
+		}
+		return nil, fmt.Errorf("invalid cipher type int value")
 	}
 
 	return decrypted, nil

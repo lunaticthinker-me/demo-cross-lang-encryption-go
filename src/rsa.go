@@ -19,9 +19,10 @@ const (
 	PaddingPkcs1V15
 )
 
-var RsaPaddingList = []int{PaddingOaep, PaddingPkcs1V15}
-
-var RsaPaddingLabels = []string{"OAEP", "Pkcs1V15"}
+var RsaPaddings = map[string]int{
+	"OAEP":     PaddingOaep,
+	"Pkcs1V15": PaddingPkcs1V15,
+}
 
 // RsaCrypt -
 type RsaCrypt struct {

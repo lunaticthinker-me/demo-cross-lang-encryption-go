@@ -35,10 +35,10 @@ func getAes(key string, _type int) (*democrypt.AESCrypt, error) {
 	return democrypt.NewAESCrypt(key, _type)
 }
 
-func indexOf(element string, data []string) int {
+func indexOf(element string, data map[string]int) int {
 	for k, v := range data {
-		if element == v {
-			return k
+		if element == k {
+			return v
 		}
 	}
 	return -1
@@ -65,7 +65,7 @@ func Encrypt() {
 	csvString := ""
 
 	// AES
-	for _, cypherType := range democrypt.AesChyperList {
+	for cypherLabel, cypherType := range democrypt.AesChyperModes {
 		keys := []string{}
 		k, _ := randutil.Alphanumeric(16)
 		keys = append(keys, k)
@@ -75,7 +75,7 @@ func Encrypt() {
 		keys = append(keys, k)
 		for _, key := range keys {
 			var row []string
-			algo := fmt.Sprintf("%s:%s", "AES", democrypt.AesCypherLabels[cypherType])
+			algo := fmt.Sprintf("%s:%s", "AES", cypherLabel)
 			decrypted, err := randutil.Alphanumeric(16)
 			if err == nil {
 				crypto, err := democrypt.NewAESCrypt(key, cypherType)
@@ -103,9 +103,9 @@ func Encrypt() {
 
 	// RSA
 
-	for _, padding := range democrypt.RsaPaddingList {
+	for paddingLabel, padding := range democrypt.RsaPaddings {
 		var row []string
-		algo := fmt.Sprintf("%s:%s", "RSA", democrypt.RsaPaddingLabels[padding])
+		algo := fmt.Sprintf("%s:%s", "RSA", paddingLabel)
 		decrypted, err := randutil.Alphanumeric(16)
 		if err == nil {
 			crypto, err := getRsa(padding)
@@ -132,9 +132,9 @@ func Encrypt() {
 
 	// X509
 
-	for _, padding := range democrypt.RsaPaddingList {
+	for paddingLabel, padding := range democrypt.RsaPaddings {
 		var row []string
-		algo := fmt.Sprintf("%s:%s", "X509", democrypt.RsaPaddingLabels[padding])
+		algo := fmt.Sprintf("%s:%s", "X509", paddingLabel)
 		decrypted, err := randutil.Alphanumeric(16)
 		if err == nil {
 			crypto, err := getX509(padding)
@@ -184,11 +184,11 @@ func Decrypt() {
 
 		switch algo[0] {
 		case "AES":
-			crypto, err = getAes(test[1], indexOf(algo[1], democrypt.AesCypherLabels))
+			crypto, err = getAes(test[1], indexOf(algo[1], democrypt.AesChyperModes))
 		case "RSA":
-			crypto, err = getRsa(indexOf(algo[1], democrypt.RsaPaddingLabels))
+			crypto, err = getRsa(indexOf(algo[1], democrypt.RsaPaddings))
 		case "X509":
-			crypto, err = getX509(indexOf(algo[1], democrypt.RsaPaddingLabels))
+			crypto, err = getX509(indexOf(algo[1], democrypt.RsaPaddings))
 		}
 
 		if test[4] == "" {

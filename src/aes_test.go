@@ -29,7 +29,7 @@ func TestAESCryptPadding(t *testing.T) {
 func TestAesEncryptDeCypher(t *testing.T) {
 	a := assert.New(t)
 
-	for _, Type := range AesChyperList {
+	for _, Type := range AesChyperModes {
 		for _, Hash := range []string{aes128Hash, aes192Hash, aes256Hash} {
 			// unavailable cyphers
 			if Type == AesCcmCypher || Type == AesCfb8Cypher || Type == AesGcmCypher || Type == AesOfbCypher || Type == AesPcbcCypher {
