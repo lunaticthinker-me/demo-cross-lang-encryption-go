@@ -1,0 +1,80 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Main CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  unittest:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version:
+          - 1.17
+          - 1.18
+          - 1.19
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Go ${{ matrix.go-version }}
+      uses: actions/setup-go@v3
+      with:
+        go-version: ${{ matrix.go-version }}
+
+    - name: Build
+      run: go build -v ./...
+
+    - name: Test
+      run: go test -v ./...
+
+  # encrypt:
+  #   name: Encrypt
+  #   runs-on: ubuntu-latest
+
+  #   strategy:
+  #     matrix:
+  #       lang:
+  #         # -cs
+  #         # - go
+  #         - js
+  #         # - lua # TODO: no implemented repo yet
+  #         # - py
+
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Code Build
+  #       run: npm i && npm run build
+  #     # https://stackoverflow.com/questions/71952762/how-to-trigger-a-workflow-from-another-workflow-using-github-actions
+  #     - name: Run Generate & Trigger ${{ matrix.lang }} decryption
+  #       run: |
+  #         set -ex; \
+  #         node bin/generate.js \
+  #         && DATA_CSV=$(cat ./data.csv | jq -sR .) \
+  #         && JSON_DATA='{"ref":"${{ github.event.repository.default_branch || 'master' }}","inputs":{"data_csv":__DATA_CSV__,"lang":"${{ matrix.lang }}"}}' \
+  #         && JSON_DATA=${JSON_DATA/__DATA_CSV__/$DATA_CSV} \
+  #         && echo $JSON_DATA \
+  #         && curl \
+  #         -X POST \
+  #         -H "Accept: application/vnd.github+json" \
+  #         -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
+  #         https://api.github.com/repos/${{ github.repository_owner }}/demo-cross-lang-encryption-${{ matrix.lang }}/actions/workflows/decrypt.yml/dispatches \
+  #         -d "$JSON_DATA"
+  #     # - uses: ./
+  #     #   with:
+  #     #     owner: ${{ github.repository_owner }}
+  #     #     repo: demo-cross-lang-encryption-${{ matrix.lang }}
+  #     #     ref: ${{ github.event.repository.default_branch || 'master' }}
+  #     #     github_token: ${{ secrets.SECRET_PERSONAL_TOKEN }}
+  #     #     workflow_file_name: decrypt.yaml
+  #     #     client_payload: '{"data_csv": "${{env.DATA_CSV}}"}'
+  #     #     # wait_interval: 11
+  #     #     # trigger_workflow: true
+  #     #     # wait_workflow: true
+  #     #     # propagate_failure: true
+
