@@ -24,6 +24,19 @@ func getX509(Type int) (*democrypt.X509Crypt, error) {
 	return democrypt.NewX509Crypt(filepath.Join(x509Path, "cert.pem"), filepath.Join(x509Path, "key.pem"), Type)
 }
 
+func getAes(key string, _type int) (*democrypt.AESCrypt, error) {
+	return democrypt.NewAESCrypt(key, _type)
+}
+
+func indexOf(element string, data []string) int {
+	for k, v := range data {
+		if element == v {
+			return k
+		}
+	}
+	return -1
+}
+
 func panicIfErr(err error) {
 	if err != nil {
 		panic(err)
@@ -158,9 +171,39 @@ func Decrypt() {
 
 	for _, line := range strings.Split(csvString, "\n") {
 		test := strings.Split(line, ",")
-		// algo := strings.Split(test[0], ":")
+		algo := strings.Split(test[0], ":")
+		var crypto democrypt.Crypt
+		var err error
 
-		tbl.AddRow(test, "", "")
+		fmt.Println(test[4])
+
+		switch algo[0] {
+		case "AES":
+			crypto, err = getAes(test[1], indexOf(algo[1], democrypt.AesCypherLabels))
+		case "RSA":
+			crypto, err = getRsa(indexOf(algo[1], democrypt.RsaPaddingLabels))
+		case "X509":
+			crypto, err = getX509(indexOf(algo[1], democrypt.RsaPaddingLabels))
+		}
+
+		if test[4] == "<nil>" {
+			if err == nil {
+				decrypted, err := crypto.Decrypt(test[3])
+				if err == nil {
+					if decrypted == test[2] {
+						tbl.AddRow(test[0], "yes", "")
+					} else {
+						tbl.AddRow(test[0], "no", "")
+					}
+				} else {
+					tbl.AddRow(test[0], "", fmt.Sprintf("%v", err))
+				}
+			} else {
+				tbl.AddRow(test[0], "", fmt.Sprintf("%v", err))
+			}
+		} else {
+			tbl.AddRow(test[0], "", "source could not encrypt")
+		}
 	}
 
 	tbl.Print()
