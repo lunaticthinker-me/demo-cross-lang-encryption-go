@@ -41,14 +41,14 @@ var AesCypherLabels = []string{
 }
 
 var AesChyperList = []int{
-	AesCbcCypher,
+	AesCbcCypher,  // ✓
 	AesCcmCypher,  // not implemented https://github.com/pschlump/AesCCM/blob/master/ccm_test.go
 	AesCfb8Cypher, // unavailable
-	AesCfbCypher,
-	AesCtrCypher,
-	AesEcbCypher,
-	AesGcmCypher, // see AesCcmCypher
-	AesOfbCypher,
+	AesCfbCypher,  // ✓
+	AesCtrCypher,  // ✓
+	AesEcbCypher,  // ✓
+	AesGcmCypher,  // see AesCcmCypher
+	AesOfbCypher,  // unavailable
 	AesPcbcCypher, // unavailable
 }
 
@@ -108,7 +108,6 @@ func (enc AESCrypt) EncryptBytes(plaintext []byte) ([]byte, error) {
 
 		mode := cipher.NewCFBEncrypter(block, enc.IV)
 		mode.XORKeyStream(ciphertext, plaintext)
-	// case AesCfb8Cypher:
 	case AesCtrCypher:
 		ciphertext = make([]byte, len(plaintext))
 
@@ -123,7 +122,6 @@ func (enc AESCrypt) EncryptBytes(plaintext []byte) ([]byte, error) {
 
 		ciphertext = make([]byte, len(plaintext))
 		mode.CryptBlocks(ciphertext, plaintext)
-	case AesGcmCypher:
 	default:
 		return nil, fmt.Errorf("invalid cipher type: %s", AesCypherLabels[enc.Type])
 	}
@@ -163,11 +161,9 @@ func (enc AESCrypt) DecryptBytes(cipherbytes []byte) ([]byte, error) {
 		stream := cipher.NewCBCDecrypter(block, enc.IV)
 		stream.CryptBlocks(decrypted, encrypted)
 		decrypted = enc.pkcs7Trimming(decrypted)
-	case AesCcmCypher:
 	case AesCfbCypher:
 		stream := cipher.NewCFBDecrypter(block, enc.IV)
 		stream.XORKeyStream(decrypted, encrypted)
-	// case AesCfb8Cypher:
 	case AesCtrCypher:
 		stream := cipher.NewCTR(block, enc.IV)
 		stream.XORKeyStream(decrypted, encrypted)
@@ -179,9 +175,6 @@ func (enc AESCrypt) DecryptBytes(cipherbytes []byte) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-	case AesGcmCypher:
-	case AesOfbCypher:
-	case AesPcbcCypher:
 	default:
 		return nil, fmt.Errorf("invalid cipher type: %s", AesCypherLabels[enc.Type])
 	}

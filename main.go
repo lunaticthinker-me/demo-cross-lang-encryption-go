@@ -175,8 +175,6 @@ func Decrypt() {
 		var crypto democrypt.Crypt
 		var err error
 
-		fmt.Println(test[4])
-
 		switch algo[0] {
 		case "AES":
 			crypto, err = getAes(test[1], indexOf(algo[1], democrypt.AesCypherLabels))
@@ -193,7 +191,7 @@ func Decrypt() {
 					if decrypted == test[2] {
 						tbl.AddRow(test[0], "yes", "")
 					} else {
-						tbl.AddRow(test[0], "no", "")
+						tbl.AddRow(test[0], "no", "decrypt failed")
 					}
 				} else {
 					tbl.AddRow(test[0], "", fmt.Sprintf("%v", err))
@@ -202,7 +200,7 @@ func Decrypt() {
 				tbl.AddRow(test[0], "", fmt.Sprintf("%v", err))
 			}
 		} else {
-			tbl.AddRow(test[0], "", "source could not encrypt")
+			tbl.AddRow(test[0], "", fmt.Sprintf("source could not encrypt: %s", test[4]))
 		}
 	}
 
