@@ -40,6 +40,7 @@ var AesCypherLabels = []string{
 	"PCBC",
 }
 
+// TODO: convert to map
 var AesChyperList = []int{
 	AesCbcCypher,  // ✓
 	AesCcmCypher,  // not implemented https://github.com/pschlump/AesCCM/blob/master/ccm_test.go
