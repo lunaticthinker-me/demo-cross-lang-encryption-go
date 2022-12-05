@@ -43,8 +43,8 @@ var AesCypherLabels = []string{
 var AesChyperList = []int{
 	AesCbcCypher,  // ✓
 	AesCcmCypher,  // not implemented https://github.com/pschlump/AesCCM/blob/master/ccm_test.go
-	AesCfb8Cypher, // unavailable
 	AesCfbCypher,  // ✓
+	AesCfb8Cypher, // unavailable
 	AesCtrCypher,  // ✓
 	AesEcbCypher,  // ✓
 	AesGcmCypher,  // see AesCcmCypher
